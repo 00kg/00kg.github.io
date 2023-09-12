@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://00kg.github.io</id>
+    <title>00kg&apos;s Blog</title>
+    <updated>2023-09-12T15:32:18.673Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://00kg.github.io"/>
+    <link rel="self" href="https://00kg.github.io/atom.xml"/>
+    <subtitle>CV工程师的学习笔记</subtitle>
+    <logo>https://00kg.github.io/images/avatar.png</logo>
+    <icon>https://00kg.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2023, 00kg&apos;s Blog</rights>
+</feed>
