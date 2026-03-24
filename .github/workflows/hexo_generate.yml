@@ -1,0 +1,74 @@
+name: HexoGenerate
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          # Examples: 20, 18.19, >=16.20.2, lts/Iron, lts/Hydrogen, *, latest, current, node
+          # Ref: https://github.com/actions/setup-node#supported-version-syntax
+          node-version: "24.14.0"
+      # - name: Generate Hexo config from template
+      #   env:
+      #     ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+      #     ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
+      #     ALGOLIA_ADMIN_API_KEY: ${{ secrets.ALGOLIA_ADMIN_API_KEY }}
+      #     WEBPUSHR_KEY: ${{ secrets.WEBPUSHR_KEY }}
+      #     WEBPUSHR_AUTH_TOKEN: ${{ secrets.WEBPUSHR_AUTH_TOKEN }}
+      #     WEBPUSHR_TRACKING_CODE: ${{ secrets.WEBPUSHR_TRACKING_CODE }}
+      #   run: |
+      #     # 去除可能的换行符，避免 envsubst 注入异常
+      #     export ALGOLIA_APP_ID=$(echo "$ALGOLIA_APP_ID" | tr -d '\n\r')
+      #     export ALGOLIA_API_KEY=$(echo "$ALGOLIA_API_KEY" | tr -d '\n\r')
+      #     export ALGOLIA_ADMIN_API_KEY=$(echo "$ALGOLIA_ADMIN_API_KEY" | tr -d '\n\r')
+      #     export WEBPUSHR_KEY=$(echo "$WEBPUSHR_KEY" | tr -d '\n\r')
+      #     export WEBPUSHR_AUTH_TOKEN=$(echo "$WEBPUSHR_AUTH_TOKEN" | tr -d '\n\r')
+      #     export WEBPUSHR_TRACKING_CODE=$(echo "$WEBPUSHR_TRACKING_CODE" | tr -d '\n\r')
+      #     envsubst < _config.template.yml > _config.yml
+      # - name: Generate Butterfly config from template
+      #   env:
+      #     VALINE_APP_ID: ${{ secrets.VALINE_APP_ID }}
+      #     VALINE_APP_KEY: ${{ secrets.VALINE_APP_KEY }}
+      #   run: |
+      #     export VALINE_APP_ID=$(echo "$VALINE_APP_ID" | tr -d '\n\r')
+      #     export VALINE_APP_KEY=$(echo "$VALINE_APP_KEY" | tr -d '\n\r')
+      #     envsubst < _config.butterfly.template.yml > _config.butterfly.yml
+      - name: Cache NPM dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache
+      - name: Install Dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
